@@ -16,13 +16,17 @@
 
   function applyPhones(p) {
     if (!p) return;
+    const setLink = (el, raw, display) => {
+      if (el.tagName === "A") el.href = "tel:" + tel(raw);
+      if (el.dataset.phoneShow === "number") {
+        el.textContent = display || raw;
+      }
+    };
     root.querySelectorAll('[data-phone="service"]').forEach((el) => {
-      if (el.tagName === "A") el.href = "tel:" + tel(p.service);
-      el.textContent = p.serviceDisplay || p.service;
+      setLink(el, p.service, p.serviceDisplay);
     });
     root.querySelectorAll('[data-phone="paint"]').forEach((el) => {
-      if (el.tagName === "A") el.href = "tel:" + tel(p.paint);
-      el.textContent = p.paintDisplay || p.paint;
+      setLink(el, p.paint, p.paintDisplay);
     });
   }
 
