@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админка — СТО ОКЕАН</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div id="loginView" class="wrap card">
+    <h1>Вход в админку</h1>
+    <p class="sub">СТО ОКЕАН · редактирование текстов сайта</p>
+    <label for="loginPass">Пароль</label>
+    <input id="loginPass" type="password" autocomplete="current-password" />
+    <button class="btn btn-primary" type="button" id="loginBtn" style="width:100%">Войти</button>
+    <div id="loginMsg" class="msg err"></div>
+  </div>
+
+  <div id="appView" class="wrap hidden">
+    <h1>Админка сайта</h1>
+    <p class="sub">
+      <a href="../index.html" target="_blank" rel="noopener">Открыть сайт</a>
+      · изменения сохраняются в <code>data/content.json</code>
+    </p>
+
+    <div class="tabs" id="tabs"></div>
+
+    <form id="editorForm">
+      <div id="panels"></div>
+      <div class="card">
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Сохранить JSON</button>
+          <button class="btn btn-ghost" type="button" id="reloadBtn">Обновить с сервера</button>
+          <button class="btn btn-ghost" type="button" id="logoutBtn">Выйти</button>
+        </div>
+        <div id="saveMsg" class="msg"></div>
+        <p class="sub" style="margin-top:12px">
+          После сохранения загрузите файл <strong>data/content.json</strong> на GitHub (или в корень сайта на hoster).
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
