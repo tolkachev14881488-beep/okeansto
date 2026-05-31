@@ -146,14 +146,17 @@
     }
     #sto-root .scroll-glow {
       position: fixed;
-      width: 420px;
-      height: 420px;
+      width: 480px;
+      height: 480px;
       border-radius: 50%;
       pointer-events: none;
-      z-index: 0;
-      background: radial-gradient(circle, rgba(57, 255, 20, 0.07), transparent 68%);
+      z-index: 4;
+      background: radial-gradient(circle, rgba(57, 255, 20, 0.14) 0%, rgba(57, 255, 20, 0.05) 42%, transparent 72%);
       transform: translate(var(--glow-x, -200px), var(--glow-y, -200px));
-      transition: transform 0.15s ease-out;
+      transition: transform 0.35s ease-out, opacity 0.35s ease;
+      opacity: var(--glow-opacity, 1);
+      mix-blend-mode: screen;
+      filter: blur(2px);
     }
     #sto-root .sr-only {
       position: absolute;
@@ -206,6 +209,8 @@
     #sto-root .btn-paint:hover { background: rgba(57, 255, 20, 0.16); }
 
     #sto-root .card {
+      position: relative;
+      isolation: isolate;
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -213,10 +218,24 @@
       backdrop-filter: blur(10px);
       transition: 0.28s ease;
     }
+    #sto-root .card::before {
+      content: "";
+      position: absolute;
+      inset: -30px;
+      border-radius: calc(var(--radius) + 12px);
+      background: radial-gradient(circle at 50% 50%, rgba(57, 255, 20, 0.22), transparent 68%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.35s ease;
+    }
     #sto-root .card:hover {
       transform: translateY(-5px);
-      border-color: rgba(57, 255, 20, 0.5);
-      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5), 0 0 24px rgba(57, 255, 20, 0.06);
+      border-color: rgba(57, 255, 20, 0.55);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5), 0 0 40px rgba(57, 255, 20, 0.12);
+    }
+    #sto-root .card:hover::before {
+      opacity: 1;
     }
 
     #sto-root .sec-title {
@@ -238,6 +257,7 @@
       position: sticky;
       top: 0;
       z-index: 1000;
+      isolation: isolate;
       height: 74px;
       background: rgba(4, 8, 4, 0.88);
       backdrop-filter: blur(12px);
@@ -844,7 +864,7 @@
       #sto-root .gridAuto,
       #sto-root .stats { grid-template-columns: 1fr; }
       #sto-root .hero-actions { flex-direction: column; align-items: stretch; }
-      #sto-root main { padding-bottom: 88px; }
+      #sto-root main { position: relative; z-index: 3; padding-bottom: 88px; }
       #sto-root .fab-stack {
         left: 12px;
         right: 12px;
@@ -1525,6 +1545,13 @@
     return idx;
   };
 
+  let glowFollowMouse = false;
+  const setGlowPos = (x, y) => {
+    if (!scrollGlow) return;
+    scrollGlow.style.setProperty("--glow-x", `${x}px`);
+    scrollGlow.style.setProperty("--glow-y", `${y}px`);
+  };
+
   const onScroll = () => {
     const d = document.documentElement;
     const st = d.scrollTop;
@@ -1535,9 +1562,8 @@
 
     if (motionOk) {
       root.style.setProperty("--hero-shift", `${Math.min(st * 0.16, 72)}px`);
-      if (scrollGlow) {
-        scrollGlow.style.setProperty("--glow-x", `${-120 + (p / 100) * (window.innerWidth * 0.35)}px`);
-        scrollGlow.style.setProperty("--glow-y", `${st * 0.12}px`);
+      if (scrollGlow && !glowFollowMouse) {
+        setGlowPos(-120 + (p / 100) * (window.innerWidth * 0.35), st * 0.12);
       }
     }
 
@@ -1548,6 +1574,19 @@
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+  root.addEventListener(
+    "mousemove",
+    (e) => {
+      if (!motionOk || !scrollGlow) return;
+      glowFollowMouse = true;
+      setGlowPos(e.clientX - 240, e.clientY - 240);
+    },
+    { passive: true }
+  );
+  root.addEventListener("mouseleave", () => {
+    glowFollowMouse = false;
+    onScroll();
+  });
   topBtn?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
   let track = $("#stoRevTrack");
